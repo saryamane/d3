@@ -4421,6 +4421,17 @@
         };
       });
     };
+    graticule.points = function() {
+      var PX = [ X0 ].concat(d3.range(Math.ceil(X0 / DX + ε) * DX, X1 - ε, DX), X1), PY = [ Y0 ].concat(d3.range(Math.ceil(Y0 / DY + ε) * DY, Y1 - ε, DY), Y1), px = [ x0 ].concat(d3.range(Math.ceil(x0 / dx + ε) * dx, x1 - ε, dx), x1).filter(function(x) {
+        return Math.abs(x % DX) > ε;
+      }), py = [ y0 ].concat(d3.range(Math.ceil(y0 / dy + ε) * dy, y1 - ε, dy), y1).filter(function(y) {
+        return Math.abs(y % DY) > ε;
+      });
+      return {
+        type: "MultiPoint",
+        coordinates: d3_geo_graticuleCross(PX, PY).concat(d3_geo_graticuleCross(PX, py), d3_geo_graticuleCross(px, PY), d3_geo_graticuleCross(px, py))
+      };
+    };
     graticule.outline = function() {
       return {
         type: "Polygon",
@@ -4472,6 +4483,14 @@
     };
     return graticule.majorExtent([ [ -180, -90 + ε ], [ 180, 90 - ε ] ]).minorExtent([ [ -180, -80 - ε ], [ 180, 80 + ε ] ]);
   };
+  function d3_geo_graticuleCross(x, y) {
+    for (var i = 0, n = x.length, m = y.length, k = 0, points = new Array(n * m); i < n; ++i) {
+      for (var j = 0, xi = x[i]; j < m; ++j, ++k) {
+        points[k] = [ xi, y[j] ];
+      }
+    }
+    return points;
+  }
   function d3_geo_graticuleX(y0, y1, dy) {
     var y = d3.range(y0, y1 - ε, dy).concat(y1);
     return function(x) {
